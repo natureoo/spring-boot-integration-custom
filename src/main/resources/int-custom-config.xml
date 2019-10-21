@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:int="http://www.springframework.org/schema/integration"
+	   xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	   xmlns:context="http://www.springframework.org/schema/context" xmlns="http://www.springframework.org/schema/beans"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:property-placeholder location="classpath:config/application.properties"/>
+
+
+	<int:channel id="routeSenderChannel">
+		<int:queue capacity="10" />
+	</int:channel>
+
+	<int:channel id="subChannelOne">
+		<int:queue capacity="10" />
+	</int:channel>
+
+
+	<int:channel id="subChannelTwo">
+		<int:queue capacity="10" />
+	</int:channel>
+
+	<int:channel id="receiverChannel">
+		<int:queue capacity="10" />
+	</int:channel>
+
+	<bean id="transformer" class="demo.chenj.transformer.Transformer">
+	</bean>
+
+
+	<bean id="requestFilter" class="demo.chenj.filter.RequestFilter">
+	</bean>
+
+	<bean id="serviceActivatorOne" class="demo.chenj.service.ServiceActivatorOne">
+	</bean>
+
+	<bean id="serviceActivatorTwo" class="demo.chenj.service.ServiceActivatorTwo">
+	</bean>
+
+	<int:chain id="mainChain" input-channel="routeSenderChannel">
+		<int:transformer ref="transformer"></int:transformer>
+		<int:filter ref="requestFilter"></int:filter>
+		<int:header-value-router  header-name="route">
+			<int:mapping value="one" channel="subChannelOne" />
+			<int:mapping value="two" channel="subChannelTwo" />
+		</int:header-value-router>
+	</int:chain>
+
+	<int:chain id="subChainOne" input-channel="subChannelOne">
+		<int:service-activator ref="serviceActivatorOne"  method="handleMessage"></int:service-activator>
+	</int:chain>
+
+	<int:chain id="subChainTwo" input-channel="subChannelTwo">
+		<int:service-activator ref="serviceActivatorTwo"  method="handleMessage"></int:service-activator>
+	</int:chain>
+
+	<int:poller id="poller" default="true" fixed-delay="1000" />
+
+</beans>
