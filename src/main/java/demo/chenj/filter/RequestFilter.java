@@ -16,8 +16,8 @@ public class RequestFilter {
 
 
     public boolean filter(Message<MuleMessage<BusinessData>> message) {
-        MuleMessage muleMessage = message.getPayload();
-        logger.info("RequestFilter 接受参数：" + muleMessage.toString());
+//        MuleMessage muleMessage = message.getPayload();
+        logger.info("RequestFilter 接受参数：" + message.toString());
         return true;
     }
 }
