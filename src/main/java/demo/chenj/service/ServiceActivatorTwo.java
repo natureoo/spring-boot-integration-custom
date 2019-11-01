@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 
 /**
@@ -19,7 +20,7 @@ import org.springframework.messaging.MessagingException;
  * @email 924943578@qq.com
  */
 
-public class ServiceActivatorTwo {
+public class ServiceActivatorTwo implements MessageHandler {
 
     private final static Log logger = LogFactory.getLog(ServiceActivatorTwo.class);
 
@@ -27,9 +28,11 @@ public class ServiceActivatorTwo {
     @Qualifier("receiverChannel")
     QueueChannel receiverChannel;
 
-    public void handleMessage(Message<MuleMessage<BusinessData>> message) throws MessagingException {
-        MuleMessage muleMessage = message.getPayload();
-        logger.info("ServiceActivatorTwo 接受参数：" + muleMessage.toString());
+    @Override
+    public void handleMessage(Message<?> message) throws MessagingException {
+        logger.info("ServiceActivatorTwo 接受参数：" + message.toString());
+
+        MuleMessage<BusinessData> muleMessage = (MuleMessage<BusinessData>)message.getPayload();
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("code","0000");
